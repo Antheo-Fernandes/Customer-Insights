@@ -1,0 +1,127 @@
+DROP database ECOM;
+Create database ECOM;
+USE ECOM;
+CREATE TABLE CUSTOMER_ECOM
+(Customer_ID VARCHAR(10) NOT NULL,
+Customer_Name VARCHAR(25) NOT NULL,
+DOB DATE NOT NULL,
+Gender CHAR(1) NOT NULL,
+Address VARCHAR(40),
+City VARCHAR(20),
+State CHAR(20),
+ZIP CHAR(20),
+Continent CHAR(20),
+PRIMARY KEY (Customer_ID));
+
+CREATE TABLE ORDER_ECOM 
+(Order_ID VARCHAR(10) NOT NULL,
+Customer_ID VARCHAR(10) NOT NULL,
+Order_Date DATE NOT NULL,
+PRIMARY KEY(Order_ID),
+FOREIGN KEY (Customer_ID) REFERENCES CUSTOMER_ECOM(Customer_ID));
+
+CREATE TABLE PRODUCT_ECOM
+( Product_ID VARCHAR(10) NOT NULL,
+Product_Name VARCHAR(80) ,
+Product_Description VARCHAR(200),
+Product_Category CHAR(15) ,
+Product_Price DECIMAL(6),
+PRIMARY KEY(Product_ID));
+
+CREATE TABLE ORDERLINE_ECOM
+( Order_ID VARCHAR(10) NOT NULL,
+Product_ID VARCHAR(10) NOT NULL,
+Quantity INT(5),
+PRIMARY KEY (Order_ID,Product_ID),
+FOREIGN KEY (Order_ID) REFERENCES ORDER_ECOM(Order_ID),
+FOREIGN KEY (Product_ID) REFERENCES PRODUCT_ECOM(Product_ID));
+
+CREATE TABLE PAYMENT_ECOM
+(Payment_ID VARCHAR(10) NOT NULL,
+Order_ID VARCHAR(10) NOT NULL,
+Payment_Method CHAR(20) NOT NULL,
+Payment_Status CHAR(10) NOT NULL,
+PRIMARY KEY (Payment_ID),
+FOREIGN KEY(Order_ID)REFERENCES ORDER_ECOM(Order_ID));
+
+drop table Customer_Ecom;
+Select*from CUSTOMER_ECOM;
+drop table Order_Ecom;
+Select*from order_ecom;
+drop table Product_Ecom;
+Select*from PRODUCT_ECOM;
+Drop table Orderline_ECOM;
+SELECT* FROM ORDERLINE_ECOM;
+Drop table Payment_Ecom;
+SELECT* FROM PAYMENT_ECOM;
+
+SELECT GENDER,count(GENDER)
+FROM CUSTOMER_ECOM 
+GROUP BY GENDER;
+
+/*DEMOGRAPHICS OF CUSTOMERS*/ 
+SELECT Continent, count(Customer_ID) as 'No of customers'
+FROM customer_ecom 
+group by continent;
+
+/*MOST POPULAR PRODUCT*/
+SELECT T.PRODUCT_ID,PRODUCT_NAME,MAX(T.TOTAL) AS Quantity_Sold
+FROM (SELECT ORDERLINE_ECOM.PRODUCT_ID,SUM(QUANTITY) AS TOTAL 
+	  FROM ORDERLINE_ECOM
+      GROUP BY ORDERLINE_ECOM.PRODUCT_ID) AS T JOIN PRODUCT_ECOM
+      ON T.PRODUCT_ID=PRODUCT_ECOM.PRODUCT_ID;
+      
+      
+      /**/
+
+SELECT M.PRODUCT_ID,M.PRODUCT_NAME,MAX(T.TOTAL) AS Quantity_Sold
+FROM (SELECT ORDERLINE_ECOM.PRODUCT_ID,SUM(QUANTITY) AS TOTAL 
+	  FROM ORDERLINE_ECOM
+      GROUP BY ORDERLINE_ECOM.PRODUCT_ID) AS T JOIN PRODUCT_ECOM )AS M
+      ON T.PRODUCT_ID=M.PRODUCT_ID;
+      
+SELECT product_ecom.PRODUCT_ID,product_name, TOTAL1 
+FROM ORDERLINE_ECOM,product_ecom
+where orderline_ecom.product_id = product_ecom.product_id
+and TOTAL1=(select max(TOTAL)
+      FROM (SELECT ORDERLINE_ECOM.PRODUCT_ID,SUM(QUANTITY) AS TOTAL 
+			FROM ORDERLINE_ECOM
+			GROUP BY ORDERLINE_ECOM.PRODUCT_ID) AS T);
+      
+/* WORK IN PROGRESS*/
+SELECT PRODUCT_ECOM.PRODUCT_ID,PRODUCT_NAME,MAX(T.TOTAL) AS Quantity_Sold
+FROM T,PRODUCT_ECOM
+WHERE PRODUCT_ECOM.PRODUCT_ID=(SELECT T.PRODUCT_ID 
+FROM (SELECT ORDERLINE_ECOM.PRODUCT_ID, SUM(QUANTITY) AS TOTAL 
+	  FROM ORDERLINE_ECOM
+      GROUP BY PRODUCT_ID AS T JOIN PRODUCT_ECOM
+      ON T.PRODUCT_ID=PRODUCT_ECOM.PRODUCT_ID)
+
+/*WORK IN PROGRESS*/
+SELECT ORDERLINE_ECOM.PRODUCT_ID, MAX(ORDERLINE_ECOM.TOTAL)/*NAME'S MISSING*/
+FROM ORDERLINE_ECOM JOIN PRODUCT_ECOM
+ON ORDERLINE_ECOM.PRODUCT_ID=PRODUCT_ECOM.PRODUCT_ID
+GROUP BY SELECT ORDERLINE_ECOM.PRODUCT_ID,SUM(QUANTITY) AS TOTAL
+	      FROM ORDERLINE_ECOM ;
+          
+/* To check the product whose price is above the average price */          
+SELECT PRODUCT_ID,PRODUCT_NAME, PRODUCT_PRICE
+FROM PRODUCT_ECOM
+WHERE PRODUCT_PRICE> (SELECT AVG(PRODUCT_PRICE) FROM PRODUCT_ECOM);
+       
+/*To check the Loyal Customers who frequently make purchases*/
+Select Customer_ECOM.Customer_ID, Customer_Name, count(Order_Ecom.Customer_ID) as Loyalty
+from ORDER_ECOM JOIN Customer_ECOM
+ON Customer_Ecom.Customer_ID=Order_Ecom.Customer_ID
+GROUP BY Customer_ID
+	Order BY Loyalty DESC;
+/*To check for the most popular product*/
+SELECT b.product_id, p.product_name, b.Qty  
+FROM (  
+    SELECT a.product_id, a.Qty, MAX(a.Qty) OVER () AS MaxQty  
+    FROM (  
+        SELECT s.product_id, SUM(s.quantity) AS Qty  
+        FROM Orderline_Ecom s   
+        GROUP BY s.product_id ) a ) b  
+INNER JOIN Product_Ecom p ON p.product_id = b.product_id  
+WHERE b.Qty = b.MaxQty  
