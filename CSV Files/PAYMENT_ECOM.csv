@@ -1,0 +1,31 @@
+﻿Payment_ID,Order_ID,Payment_Method,Payment_Status
+PY001,O001,Credit/Debit Card,Success
+PY002,O002,Cash,Success
+PY003,O003,Cash,Failure
+PY004,O004,Credit/Debit Card,Success
+PY005,O005,Credit/Debit Card,Success
+PY006,O006,Cash,Failure
+PY007,O007,Credit/Debit Card,Success
+PY008,O008,Cash,Success
+PY009,O009,Credit/Debit Card,Failure
+PY010,O010,Cash,Success
+PY011,O011,Credit/Debit Card,Failure
+PY012,O012,Credit/Debit Card,Failure
+PY013,O013,Credit/Debit Card,Success
+PY014,O014,Credit/Debit Card,Success
+PY015,O015,Cash,Success
+PY016,O016,Credit/Debit Card,Success
+PY017,O017,Credit/Debit Card,Success
+PY018,O018,Credit/Debit Card,Success
+PY019,O019,Cash,Success
+PY020,O020,Cash,Success
+PY021,O021,Cash,Success
+PY022,O022,Credit/Debit Card,Failure
+PY023,O023,Cash,Success
+PY024,O024,Cash,Success
+PY025,O025,Credit/Debit Card,Failure
+PY026,O026,Cash,Success
+PY027,O027,Credit/Debit Card,Success
+PY028,O028,Cash,Success
+PY029,O029,Credit/Debit Card,Failure
+PY030,O030,Cash,Success
